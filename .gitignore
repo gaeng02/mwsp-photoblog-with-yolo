@@ -38,10 +38,6 @@ YOLOv5/venv/
 PhotoBlogServer/.venv/
 
 # Django
-PhotoBlogServer/db.sqlite3
-PhotoBlogServer/db.sqlite3-journal
-PhotoBlogServer/media/
-PhotoBlogServer/static/
 PhotoBlogServer/*.log
 PhotoBlogServer/.env
 PhotoBlogServer/.env.local
