@@ -5,8 +5,10 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.content.Intent;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
-import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -34,11 +36,11 @@ public class MainActivity extends AppCompatActivity {
 
     TextView textView;
     RecyclerView recyclerView;
-    Button buttonLoadMore;
+    EditText editTextSearch;
     ImageAdapter adapter;
     String site_url = "https://gaeng02.pythonanywhere.com";
     List<Post> postList = new ArrayList<>();
-    List<Post> allPostList = new ArrayList<>();
+    List<Post> allPostList = new ArrayList<>(); // 전체 포스트 리스트
 
     CloudImage taskDownload;
 
@@ -48,9 +50,6 @@ public class MainActivity extends AppCompatActivity {
     String lastJsonResponse;
     List<Post> lastParsedPosts = new ArrayList<>();
 
-    private static final int INITIAL_DISPLAY_COUNT = 2;
-    private int currentDisplayCount = INITIAL_DISPLAY_COUNT;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,14 +58,21 @@ public class MainActivity extends AppCompatActivity {
 
         textView = findViewById(R.id.textView);
         recyclerView = findViewById(R.id.recyclerView);
-        buttonLoadMore = findViewById(R.id.buttonLoadMore);
+        editTextSearch = findViewById(R.id.editTextSearch);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        buttonLoadMore.setOnClickListener(new View.OnClickListener() {
+        // 검색 기능
+        editTextSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View v) {
-                loadMorePosts();
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterPosts(s.toString());
             }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
 
         ImageAdapter imageAdapter = new ImageAdapter(postList, site_url, new ImageAdapter.OnItemClickListener() {
@@ -189,8 +195,10 @@ public class MainActivity extends AppCompatActivity {
                 if (lastParsedPosts != null && !lastParsedPosts.isEmpty()) {
                     allPostList.clear();
                     allPostList.addAll(lastParsedPosts);
-                    currentDisplayCount = INITIAL_DISPLAY_COUNT;
-                    updateDisplayedPosts();
+                    
+                    // 검색어가 있으면 필터링, 없으면 전체 표시
+                    String searchText = editTextSearch.getText().toString();
+                    filterPosts(searchText);
 
                     SimpleDateFormat sdf = new SimpleDateFormat("MM월 dd일 HH:mm", Locale.getDefault());
                     String syncTime = sdf.format(new Date());
@@ -198,40 +206,41 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     textView.setText("불러올 데이터가 없습니다.");
                     allPostList.clear();
-                    updateDisplayedPosts();
+                    postList.clear();
+                    if (adapter != null) {
+                        adapter.notifyDataSetChanged();
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
                 textView.setText("동기화 실패: " + e.getMessage());
                 allPostList.clear();
-                updateDisplayedPosts();
+                postList.clear();
+                if (adapter != null) {
+                    adapter.notifyDataSetChanged();
+                }
             }
         }
     }
 
-    private void updateDisplayedPosts() {
+    private void filterPosts(String searchText) {
         postList.clear();
-        int endIndex = Math.min(currentDisplayCount, allPostList.size());
-        for (int i = 0; i < endIndex; i++) {
-            postList.add(allPostList.get(i));
+        
+        if (searchText == null || searchText.trim().isEmpty()) {
+            // 검색어가 없으면 전체 표시
+            postList.addAll(allPostList);
+        } else {
+            // title 기반으로 필터링
+            String searchLower = searchText.toLowerCase().trim();
+            for (Post post : allPostList) {
+                if (post.getTitle() != null && post.getTitle().toLowerCase().contains(searchLower)) {
+                    postList.add(post);
+                }
+            }
         }
-
+        
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
-
-        if (buttonLoadMore != null) {
-            if (currentDisplayCount >= allPostList.size() || allPostList.size() <= INITIAL_DISPLAY_COUNT) {
-                buttonLoadMore.setVisibility(View.GONE);
-            } else {
-                buttonLoadMore.setVisibility(View.VISIBLE);
-                buttonLoadMore.setText("More");
-            }
-        }
-    }
-
-    private void loadMorePosts() {
-        currentDisplayCount += INITIAL_DISPLAY_COUNT;
-        updateDisplayedPosts();
     }
 }

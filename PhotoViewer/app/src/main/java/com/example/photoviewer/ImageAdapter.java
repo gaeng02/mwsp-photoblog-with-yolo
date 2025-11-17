@@ -12,12 +12,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
     private final List<Post> postList;
     private final String baseUrl;
     private final OnItemClickListener clickListener;
+    
+    // 라벨 맵
+    private static final Map<String, String> LABEL_MAP = new HashMap<String, String>() {{
+        put("person", "사람 👤");
+        put("dog", "강아지 🐶");
+        put("cat", "고양이 🐱");
+        put("car", "자동차 🚗");
+        put("bottle", "병 🍼");
+        put("cup", "컵 ☕");
+    }};
 
     public interface OnItemClickListener {
         void onItemClick(Post post);
@@ -55,10 +67,11 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             new LoadImageTask(holder.imageView).execute(imageUrl);
         }
 
-        // 텍스트 표시
+        // 텍스트 표시 - 라벨 맵으로 변환
         String text = post.getText();
         if (text != null && !text.isEmpty()) {
-            holder.textViewText.setText(text);
+            String convertedText = convertLabelsToKorean(text);
+            holder.textViewText.setText(convertedText);
         } else {
             holder.textViewText.setText("");
         }
@@ -80,6 +93,39 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             return dateStr.substring(0, 10);
         }
         return dateStr;
+    }
+
+    private String convertLabelsToKorean(String text) {
+        // text는 "person,car," 같은 형식일 수 있음
+        if (text == null || text.isEmpty()) {
+            return "";
+        }
+        
+        // 쉼표로 분리
+        String[] labels = text.split(",");
+        StringBuilder result = new StringBuilder();
+        
+        for (String label : labels) {
+            String trimmed = label.trim();
+            if (!trimmed.isEmpty()) {
+                // 라벨 맵에서 찾기
+                String koreanLabel = LABEL_MAP.get(trimmed.toLowerCase());
+                if (koreanLabel != null) {
+                    if (result.length() > 0) {
+                        result.append(", ");
+                    }
+                    result.append(koreanLabel);
+                } else {
+                    // 맵에 없으면 원본 그대로
+                    if (result.length() > 0) {
+                        result.append(", ");
+                    }
+                    result.append(trimmed);
+                }
+            }
+        }
+        
+        return result.toString();
     }
 
     @Override
