@@ -1,0 +1,84 @@
+# Android / Gradle
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+PhotoViewer/app/build/
+PhotoViewer/build/
+PhotoViewer/.gradle/
+PhotoViewer/local.properties
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+YOLOv5/venv/
+PhotoBlogServer/.venv/
+
+# Django
+PhotoBlogServer/db.sqlite3
+PhotoBlogServer/db.sqlite3-journal
+PhotoBlogServer/media/
+PhotoBlogServer/static/
+PhotoBlogServer/*.log
+PhotoBlogServer/.env
+PhotoBlogServer/.env.local
+
+# YOLO
+YOLOv5/runs/
+YOLOv5/*.pt
+YOLOv5/*.onnx
+YOLOv5/*.torchscript
+YOLOv5/detected/
+YOLOv5/data/datasets/
+YOLOv5/.wandb/
+
+# SocketServer
+SocketServer/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
